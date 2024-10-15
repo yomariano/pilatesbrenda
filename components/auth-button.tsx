@@ -17,7 +17,7 @@ export default function AuthButton() {
         },
       });
       if (error) throw error;
-    } catch (error) {
+    } catch (error: any) {
       alert(error.error_description || error.message);
     } finally {
       setLoading(false);
