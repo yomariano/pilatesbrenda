@@ -1,9 +1,9 @@
 "use client";
 
 import Link from 'next/link'
-import { User, Menu, X } from 'lucide-react'
+import { Menu, X } from 'lucide-react'
 import { useState } from 'react'
-import AuthButton from '@/components/Auth-Button'
+import AuthButton from './AuthButton'
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
