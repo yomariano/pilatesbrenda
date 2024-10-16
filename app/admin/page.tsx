@@ -16,6 +16,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import VideoActions from '@/components/VideoActions';
 
 // Update Level interface
 interface Level {
@@ -149,6 +150,63 @@ export default function AdminVideoUpload() {
     setIsModalOpen(false);
   };
 
+  const handleAddVideo = async (file: File, name: string, level: string) => {
+    setUploading(true);
+
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Math.random()}.${fileExt}`;
+    const filePath = `${fileName}`;
+
+    const { data: uploadData, error: uploadError } = await supabase.storage
+      .from('videos')
+      .upload(filePath, file);
+
+    if (uploadError) {
+      console.error('Error uploading video:', uploadError);
+      setUploading(false);
+      return;
+    }
+
+    const { data: publicUrlData } = supabase.storage
+      .from('videos')
+      .getPublicUrl(filePath);
+
+    const publicUrl = publicUrlData.publicUrl;
+
+    const { error: insertError } = await supabase
+      .from('clase')
+      .insert({
+        name: name,
+        video: publicUrl,
+        level: level,
+        views: 0,
+      });
+
+    if (insertError) {
+      console.error('Error inserting video data:', insertError);
+    } else {
+      fetchLevelsAndVideos();
+    }
+
+    setUploading(false);
+  };
+
+  const handleRemoveVideo = async () => {
+    if (!selectedVideo) return;
+
+    const { error } = await supabase
+      .from('clase')
+      .delete()
+      .eq('id', selectedVideo.id);
+
+    if (error) {
+      console.error('Error removing video:', error);
+    } else {
+      setSelectedVideo(null);
+      fetchLevelsAndVideos();
+    }
+  };
+
   return (
     <div className="flex flex-col md:flex-row h-screen bg-gray-100">
       <aside className="w-full md:w-64 bg-white p-4 md:p-6 overflow-y-auto">
@@ -178,51 +236,15 @@ export default function AdminVideoUpload() {
           <h1 className="text-2xl md:text-3xl font-bold mb-2 md:mb-0">
             {selectedVideo ? selectedVideo.name : "Select a video"}
           </h1>
-          <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-            <DialogTrigger asChild>
-              <Button size="sm" className="mb-2 md:mb-0">
-                <Plus className="h-4 w-4 mr-2" />
-                Add Video
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Upload Video</DialogTitle>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <Select
-                  onValueChange={(value) => setSelectedLevel(levels.find(level => level.name === value) || null)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a level" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {levels.map((level) => (
-                      <SelectItem key={level.id} value={level.name}>
-                        {level.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <Input
-                  type="file"
-                  onChange={(e) => setVideo(e.target.files?.[0] || null)}
-                  accept="video/*"
-                />
-                <div className="flex justify-end space-x-2">
-                  <Button variant="outline" onClick={() => setIsModalOpen(false)}>
-                    Cancel
-                  </Button>
-                  <Button onClick={handleUpload} disabled={uploading}>
-                    {uploading ? 'Uploading...' : 'Upload'}
-                  </Button>
-                </div>
-              </div>
-            </DialogContent>
-          </Dialog>
         </div>
+        <VideoActions
+          levels={levels}
+          onAddVideo={handleAddVideo}
+          onRemoveVideo={handleRemoveVideo}
+          isVideoSelected={!!selectedVideo}
+        />
         {selectedVideo && (
-          <div ref={videoContainerRef} className="w-full max-w-4xl mx-auto">
+          <div ref={videoContainerRef} className="w-full max-w-4xl mx-auto mt-4">
             <div style={{ position: 'relative', paddingTop: '56.25%' }}>
               <ReactPlayer
                 url={selectedVideo.video}

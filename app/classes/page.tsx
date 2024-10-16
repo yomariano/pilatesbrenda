@@ -1,12 +1,12 @@
 "use client"
 
 import { useState, useEffect, useRef } from 'react';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import { Button } from "@/components/ui/button"
 import dynamic from 'next/dynamic';
 import { supabase } from '../../lib/supabase';
-
-const ReactPlayer = dynamic(() => import('react-player'), { ssr: false });
+import ClassList from '@/components/ClassList'
+import VideoPlayer from '@/components/VideoPlayer'
+import VideoActions from '@/components/VideoActions'
+import Header from '@/components/Header'
 
 interface Level {
   id: number;
@@ -36,6 +36,10 @@ export default function ClassesPage() {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  useEffect(() => {
+    console.log(selectedVideo)
+  }, [selectedVideo])
 
   const handleResize = () => {
     if (videoContainerRef.current) {
@@ -80,50 +84,87 @@ export default function ClassesPage() {
     setSelectedVideo(video);
   }
 
+  const handleAddVideo = async (file: File, name: string, level: string) => {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Math.random()}.${fileExt}`;
+    const filePath = `${fileName}`;
+
+    const { data: uploadData, error: uploadError } = await supabase.storage
+      .from('videos')
+      .upload(filePath, file);
+
+    if (uploadError) {
+      console.error('Error uploading video:', uploadError);
+      return;
+    }
+
+    const { data: publicUrlData } = supabase.storage
+      .from('videos')
+      .getPublicUrl(filePath);
+
+    const publicUrl = publicUrlData.publicUrl;
+
+    const { error: insertError } = await supabase
+      .from('clase')
+      .insert({
+        name: name,
+        video: publicUrl,
+        level: level,
+        views: 0,
+      });
+
+    if (insertError) {
+      console.error('Error inserting video data:', insertError);
+    } else {
+      fetchLevelsAndVideos();
+    }
+  };
+
+  const handleRemoveVideo = async () => {
+    if (!selectedVideo) return;
+
+    const { error } = await supabase
+      .from('clase')
+      .delete()
+      .eq('id', selectedVideo.id);
+
+    if (error) {
+      console.error('Error removing video:', error);
+    } else {
+      setSelectedVideo(null);
+      fetchLevelsAndVideos();
+    }
+  };
+
   return (
-    <div className="flex flex-col md:flex-row h-screen bg-gray-100">
-      <aside className="w-full md:w-64 bg-white p-4 md:p-6 overflow-y-auto">
-        <h2 className="text-xl md:text-2xl font-bold mb-4">Pilates Classes</h2>
-        <Accordion type="single" collapsible className="w-full">
-          {levels.map((level) => (
-            <AccordionItem key={level.id} value={level.name.toLowerCase()}>
-              <AccordionTrigger>{level.name}</AccordionTrigger>
-              <AccordionContent>
-                {level.videos.map((video) => (
-                  <Button
-                    key={video.id}
-                    variant="ghost"
-                    className="w-full justify-start mb-2"
-                    onClick={() => handleVideoSelect(video)}
-                  >
-                    {video.name}
-                  </Button>
-                ))}
-              </AccordionContent>
-            </AccordionItem>
-          ))}
-        </Accordion>
-      </aside>
-      <main className="flex-1 p-4 md:p-6 overflow-y-auto relative">
-        <div className="mb-4">
-          <h1 className="text-2xl md:text-3xl font-bold">
-            {selectedVideo ? selectedVideo.name : "Select a video"}
-          </h1>
-        </div>
-        {selectedVideo && (
-          <div ref={videoContainerRef} className="w-full max-w-4xl mx-auto">
-            <div style={{ position: 'relative', paddingTop: '56.25%' }}>
-              <ReactPlayer
-                url={selectedVideo.video}
-                width="100%"
-                height="100%"
-                style={{ position: 'absolute', top: 0, left: 0 }}
-                controls
-              />
-            </div>
-          </div>
-        )}
-      </main>
+    <div> 
+      <Header />
+      <div className="flex flex-col md:flex-row h-screen bg-gray-100 mt:p-8 pt-6 sm:pt-16 px-1">
+      
+       <aside className="w-full md:w-64 bg-white p-4 md:p-6 overflow-y-auto">
+         <h2 className="text-xl md:text-2xl font-bold mb-4">Pilates Classes</h2>
+         <ClassList levels={levels} onVideoSelect={handleVideoSelect} />
+       </aside>
+       <main className="flex-1 p-4 md:p-6 overflow-y-auto relative">
+         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
+           <h1 className="text-2xl md:text-3xl font-bold mb-2 md:mb-0">
+             {selectedVideo ? selectedVideo.name : "Select a video"}
+           </h1>
+         </div>
+         <VideoActions
+           levels={levels}
+           onAddVideo={handleAddVideo}
+           onRemoveVideo={handleRemoveVideo}
+           isVideoSelected={!!selectedVideo}
+         />
+         {selectedVideo && (
+           <VideoPlayer
+             videoUrl={selectedVideo.video}
+           />
+         )}
+       </main>
+     </div>
     </div>
+    
   );
 }
