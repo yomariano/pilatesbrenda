@@ -25,29 +25,20 @@ export default function Home() {
     <main className="container mx-auto px-4">
       <h1 className="text-2xl font-bold my-4">Zen Pilates</h1>
       
-      {/* Debug info */}
-      <p className="text-sm text-gray-500 mb-4">
-        Is Mobile: {isMobile ? 'Yes' : 'No'}, 
-        Selected Level: {selectedLevel}, 
-        Modal Open: {isModalOpen ? 'Yes' : 'No'}
-      </p>
-
       {/* Desktop view */}
       <div className="hidden md:block">
-        <p>Desktop View</p>
-        {/* Your existing desktop layout here */}
+        {/* Your desktop layout here */}
       </div>
 
       {/* Mobile view */}
       <div className={`md:hidden ${isMobile ? 'bg-gray-100' : ''} p-4`}>
-        <p>Mobile View</p>
         <Button onClick={openModal} className="w-full mb-4">
           Select Level: {selectedLevel}
         </Button>
         
         {/* Video section */}
         <div>
-          <h2 className="text-xl font-semibold mb-2">WhatsApp Video 2024-10-15 at 23.13.49.mp4</h2>
+          <h2 className="text-xl font-semibold mb-2">Video Title</h2>
           <div className="flex space-x-2 mb-4">
             <Button variant="outline">+ Add Video</Button>
             <Button variant="outline">🗑 Remove Video</Button>
