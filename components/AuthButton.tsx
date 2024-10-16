@@ -39,6 +39,7 @@ export default function AuthButton() {
     try {
       setLoading(true);
       console.log('Initiating login process');
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || window.location.origin;
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
@@ -46,7 +47,7 @@ export default function AuthButton() {
             access_type: 'offline',
             prompt: 'consent',
           },
-          redirectTo: `${window.location.origin}${pathname}`,
+          redirectTo: `${baseUrl}${pathname}`,
         },
       });
       

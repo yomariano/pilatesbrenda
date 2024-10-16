@@ -35,20 +35,21 @@ export default function ClassList({ levels, onVideoSelect }: ClassListProps) {
     <Accordion type="single" collapsible className="w-full">
       {levels.map((level) => (
         <AccordionItem key={level.id} value={level.name.toLowerCase()}>
-          <AccordionTrigger className="text-sm md:text-base">{level.name}</AccordionTrigger>
+          <AccordionTrigger className="text-sm md:text-base text-gray-800">
+            {level.name}
+          </AccordionTrigger>
           <AccordionContent>
             {level.videos.map((video) => (
               <div key={video.id} className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2 space-y-2 sm:space-y-0">
                 <div className="w-full sm:w-auto">
-                  <h3 className="font-semibold text-sm md:text-base">
+                  <h3 className="font-semibold text-sm md:text-base text-gray-800">
                     {video.name.length > 10 ? `${video.name.slice(0, 10)}...` : video.name}
                   </h3>
-                  {/* You can add more video details here if needed */}
                 </div>
                 <Button
                   variant="outline"
                   size="sm"
-                  className="w-full sm:w-auto mt-1 sm:mt-0"
+                  className="w-full sm:w-auto mt-1 sm:mt-0 text-gray-800"
                   onClick={() => handleVideoSelect(video)}
                 >
                   Watch

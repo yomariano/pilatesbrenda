@@ -1,29 +1,20 @@
 "use client"
 
-import { useState, useEffect } from 'react'
-import { AspectRatio } from "@/components/ui/aspect-ratio"
+import { RefObject } from 'react'
 
-export default function VideoPlayer({ videoUrl }: { videoUrl: string }) {
-  const [isLoaded, setIsLoaded] = useState(false);
+interface VideoPlayerProps {
+  videoUrl: string;
+}
 
-  useEffect(() => {
-    setIsLoaded(!!videoUrl);
-  }, [videoUrl]);
-
+export default function VideoPlayer({ videoUrl }: VideoPlayerProps) {
   return (
-    <div>
-      {videoUrl ? (
-        <AspectRatio ratio={16 / 9}>
-          <iframe
-            src={videoUrl}
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-            className="w-full h-full rounded-lg"
-          />
-        </AspectRatio>
-      ) : (
-        <p className="mt-4 text-center text-gray-500">Select a class from the list to start watching</p>
-      )}
-    </div>
+    <video 
+      //ref={videoRef}
+      src={videoUrl} 
+      controls 
+      className="w-full h-full rounded-lg"
+    >
+      Your browser does not support the video tag.
+    </video>
   );
 }

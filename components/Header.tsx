@@ -51,9 +51,9 @@ export default function Header() {
             <Link href="/about" className="text-base font-medium text-gray-500 hover:text-gray-900 transition duration-150 ease-in-out">
               About
             </Link>
-            <Link href="/contact" className="text-base font-medium text-gray-500 hover:text-gray-900 transition duration-150 ease-in-out">
+            {/* <Link href="/contact" className="text-base font-medium text-gray-500 hover:text-gray-900 transition duration-150 ease-in-out">
               Contact
-            </Link>
+            </Link> */}
             <AuthButton />
 
             {/* <Link href="/login" className="text-base font-medium text-gray-500 hover:text-gray-900 transition duration-150 ease-in-out">
