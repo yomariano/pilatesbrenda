@@ -150,9 +150,9 @@ export default function AdminVideoUpload() {
   };
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      <aside className="w-64 bg-white p-6 overflow-y-auto">
-        <h2 className="text-2xl font-bold mb-4">Pilates Classes</h2>
+    <div className="flex flex-col md:flex-row h-screen bg-gray-100">
+      <aside className="w-full md:w-64 bg-white p-4 md:p-6 overflow-y-auto">
+        <h2 className="text-xl md:text-2xl font-bold mb-4">Pilates Classes</h2>
         <Accordion type="single" collapsible className="w-full">
           {levels.map((level) => (
             <AccordionItem key={level.id} value={level.name.toLowerCase()}>
@@ -173,15 +173,16 @@ export default function AdminVideoUpload() {
           ))}
         </Accordion>
       </aside>
-      <main className="flex-1 p-6 overflow-y-auto relative">
-        <div className="flex justify-between items-center mb-4">
-          <h1 className="text-3xl font-bold">
+      <main className="flex-1 p-4 md:p-6 overflow-y-auto relative">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
+          <h1 className="text-2xl md:text-3xl font-bold mb-2 md:mb-0">
             {selectedVideo ? selectedVideo.name : "Select a video"}
           </h1>
           <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
             <DialogTrigger asChild>
-              <Button size="icon">
-                <Plus className="h-4 w-4" />
+              <Button size="sm" className="mb-2 md:mb-0">
+                <Plus className="h-4 w-4 mr-2" />
+                Add Video
               </Button>
             </DialogTrigger>
             <DialogContent>
@@ -225,8 +226,8 @@ export default function AdminVideoUpload() {
             <div style={{ position: 'relative', paddingTop: '56.25%' }}>
               <ReactPlayer
                 url={selectedVideo.video}
-                width={videoSize.width}
-                height={videoSize.height}
+                width="100%"
+                height="100%"
                 style={{ position: 'absolute', top: 0, left: 0 }}
                 controls
               />
